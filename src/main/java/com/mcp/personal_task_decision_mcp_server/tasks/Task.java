@@ -1,5 +1,6 @@
 package com.mcp.personal_task_decision_mcp_server.tasks;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -7,14 +8,18 @@ public class Task {
 
 	private final String id;
 	private final String title;
-	private final String due;
-	private final Date createdAt;
+	private final LocalDate createdAt;
+	private final LocalDate dueDate;
+	private String status;
+	private final int urgency;
 
-	public Task(String title, String due) {
+	public Task(String title, int urgency, LocalDate dueDate) {
 		this.id = UUID.randomUUID().toString();
 		this.title = title;
-		this.due = due;
-		this.createdAt = new Date();
+		this.urgency = urgency;
+		this.createdAt = LocalDate.now();
+		this.status = "DUE";
+		this.dueDate = dueDate;
 	}
 
 	public String getId() {
@@ -25,11 +30,23 @@ public class Task {
 		return title;
 	}
 
-	public String getDue() {
-		return due;
-	}
-
-	public Date getCreatedAt() {
+	public LocalDate getCreatedAt() {
 		return createdAt;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public int getUrgency() {
+		return this.urgency;
+	}
+	
+	public LocalDate getDueDate() {
+		return this.dueDate;
 	}
 }
