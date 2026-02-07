@@ -23,10 +23,10 @@ public class ToolsInitializer {
 	@PostConstruct
 	public void registerTools() {
 
-		ToolDefinition toolDefinition = new ToolDefinition("add_task", "Adds a task to the user's personal task list",
+		ToolDefinition addTaskToolDefinition = new ToolDefinition("add_task", "Adds a task to the user's personal task list",
 				Map.of("title", Map.of("type", "string", "required", true), "due", Map.of("type", "string", "required", false)));
 		
-		toolRegistry.register(toolDefinition,
+		toolRegistry.register(addTaskToolDefinition,
 				args -> {
 					String title = (String) args.get("title");
 					String due = (String) args.get("due");
@@ -35,6 +35,15 @@ public class ToolsInitializer {
 
 					return Map.of("taskId", task.getId(), "title", task.getTitle(), "due", task.getDue(), "status",
 							"added");
+				});
+		
+		
+		ToolDefinition listTaskToolDefinition = new ToolDefinition("list_tasks", "Gets the user's personal task list",
+				Map.of());
+		
+		toolRegistry.register(listTaskToolDefinition,
+				args -> {
+					return taskService.getAllTasks();
 				});
 	}
 }
