@@ -28,14 +28,14 @@ public class ToolsInitializer {
 
 		ToolDefinition addTaskToolDefinition = new ToolDefinition("add_task", "Adds a task with its urgency level (from 1 to 5, 1 being least urgent)  and due date (format : yyyy-MM-dd) , to the user's personal task list",
 				Map.of("title", Map.of("type", "string", "required", true),
-						"urgency", Map.of("type", "int", "required", true),
-						"dueDate", Map.of("type", "date", "required", true)
+						"urgency", Map.of("type", "integer", "required", true),
+						"dueDate", Map.of("type", "string", "format", "date", "required", true)
 						));
 		
 		toolRegistry.register(addTaskToolDefinition,
 				args -> {
 					String title = (String) args.get("title");
-					int urgency = Integer.valueOf((String) args.get("urgency"));
+					int urgency = ((Number) args.get("urgency")).intValue();
 					
 					DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dueDate = LocalDate.parse((String) args.get("dueDate"), format);
@@ -44,7 +44,7 @@ public class ToolsInitializer {
 					Task task = taskService.addTask(title, urgency, dueDate);
 
 					return Map.of("taskId", task.getId(), "title", task.getTitle(), "urgency", task.getUrgency(), "status",
-							task.getStatus(), "deuDate", task.getDueDate());
+							task.getStatus(), "dueDate", task.getDueDate().toString());
 				});
 		
 		//--------------------------------------------------------------------------------------------------------------
@@ -53,7 +53,16 @@ public class ToolsInitializer {
 		
 		toolRegistry.register(listTaskToolDefinition,
 				args -> {
-					return taskService.getAllTasks();
+					return taskService.getAllTasks()
+					        .stream()
+					        .map(task -> Map.of(
+					                "taskId", task.getId(),
+					                "title", task.getTitle(),
+					                "urgency", String.valueOf(task.getUrgency()),
+					                "dueDate", task.getDueDate().toString(),
+					                "status", task.getStatus().toString()
+					        ))
+					        .toList();
 				});
 		
 		//--------------------------------------------------------------------------------------------------------------
