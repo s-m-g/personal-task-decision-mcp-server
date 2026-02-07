@@ -76,5 +76,31 @@ public class ToolsInitializer {
 					}
 					return Map.of("taskId", task.getId(), "title", task.getTitle(), "status", task.getStatus());
 				});
+		
+		//-------------------------------------------------------------------------------------------------------------
+		
+		ToolDefinition suggestTaskTool =
+		        new ToolDefinition(
+		                "suggest_next_task",
+		                "Suggests the most important pending task based on urgency and due date",
+		                Map.of()
+		        );
+		
+		toolRegistry.register(suggestTaskTool, args -> {
+		    Task task = taskService.suggestNextTask();
+
+		    if (task == null) {
+		        return Map.of("message", "No pending tasks");
+		    }
+
+		    return Map.of(
+		            "taskId", task.getId(),
+		            "title", task.getTitle(),
+		            "urgency", task.getUrgency(),
+		            "dueDate", task.getDueDate().toString(),
+		            "status", task.getStatus().toString()
+		    );
+		});
+
 	}
 }
