@@ -6,6 +6,8 @@ import com.mcp.personal_task_decision_mcp_server.tools.ToolDefinition;
 import com.mcp.personal_task_decision_mcp_server.tools.ToolRegistry;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,12 +38,15 @@ public class ToolsInitializer {
 				args -> {
 					String title = (String) args.get("title");
 					int urgency = ((Number) args.get("urgency")).intValue();
+					String userId = (String) RequestContextHolder
+					        .currentRequestAttributes()
+					        .getAttribute("userId", RequestAttributes.SCOPE_REQUEST);
 					
 					DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 					LocalDate dueDate = LocalDate.parse((String) args.get("dueDate"), format);
 					
 
-					Task task = taskService.addTask(title, urgency, dueDate);
+					Task task = taskService.addTask(title, urgency, dueDate, userId);
 
 					return Map.of("taskId", task.getId(), "title", task.getTitle(), "urgency", task.getUrgency(), "status",
 							task.getStatus(), "dueDate", task.getDueDate().toString());
@@ -53,7 +58,10 @@ public class ToolsInitializer {
 		
 		toolRegistry.register(listTaskToolDefinition,
 				args -> {
-					return taskService.getAllTasks()
+					String userId = (String) RequestContextHolder
+					        .currentRequestAttributes()
+					        .getAttribute("userId", RequestAttributes.SCOPE_REQUEST);
+					return taskService.getAllTasks(userId)
 					        .stream()
 					        .map(task -> Map.of(
 					                "taskId", task.getId(),
@@ -70,7 +78,10 @@ public class ToolsInitializer {
 				Map.of("taskId", Map.of("type", "string", "required", true)));
 		toolRegistry.register(completeTaskToolDefinition, 
 				args ->{
-					Task task = taskService.completeTask((String)args.get("taskId"));
+					String userId = (String) RequestContextHolder
+					        .currentRequestAttributes()
+					        .getAttribute("userId", RequestAttributes.SCOPE_REQUEST);
+					Task task = taskService.completeTask((String)args.get("taskId"), userId);
 					if(task==null) {
 						return Map.of("message", "Given task does not exists");
 					}
@@ -87,7 +98,10 @@ public class ToolsInitializer {
 		        );
 		
 		toolRegistry.register(suggestTaskTool, args -> {
-		    Task task = taskService.suggestNextTask();
+			String userId = (String) RequestContextHolder
+			        .currentRequestAttributes()
+			        .getAttribute("userId", RequestAttributes.SCOPE_REQUEST);
+		    Task task = taskService.suggestNextTask(userId);
 
 		    if (task == null) {
 		        return Map.of("message", "No pending tasks");

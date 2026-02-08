@@ -16,19 +16,19 @@ public class TaskService {
 
 	private final List<Task> tasks = new CopyOnWriteArrayList<>();
 
-	public Task addTask(String title, int urgency, LocalDate dueDate) {
-		Task task = new Task(title, urgency, dueDate);
+	public Task addTask(String title, int urgency, LocalDate dueDate, String userId) {
+		Task task = new Task(title, urgency, dueDate, userId);
 		tasks.add(task);
 		return task;
 	}
 
-	public List<Task> getAllTasks() {
-		return tasks.stream().filter(task -> task.getStatus().equals("DUE")).collect(Collectors.toList());
+	public List<Task> getAllTasks(String userId) {
+		return tasks.stream().filter(task -> task.getUserId().equals(userId) && task.getStatus().equals("DUE")).collect(Collectors.toList());
 	}
 
-	public Task completeTask(String id) {
+	public Task completeTask(String id, String userId) {
 		Task targetTask = null;
-		Optional<Task> queriedTask = tasks.stream().filter(task -> task.getId().equalsIgnoreCase(id)).findFirst();
+		Optional<Task> queriedTask = tasks.stream().filter(task -> task.getUserId().equals(userId) && task.getId().equalsIgnoreCase(id)).findFirst();
 		if(queriedTask.isPresent()) {
 			targetTask = queriedTask.get();
 		}else {
@@ -40,12 +40,12 @@ public class TaskService {
 		return targetTask;
 	}
 	
-	public Task suggestNextTask() {
+	public Task suggestNextTask(String userId) {
 	    LocalDate today = LocalDate.now();
 
 	    return tasks
 	            .stream()
-	            .filter(task -> task.getStatus() == "DUE")
+	            .filter(task -> task.getUserId().equals(userId) &&  task.getStatus() == "DUE")
 	            .max(Comparator.comparingInt(task -> calculateScore(task, today)))
 	            .orElse(null);
 	}

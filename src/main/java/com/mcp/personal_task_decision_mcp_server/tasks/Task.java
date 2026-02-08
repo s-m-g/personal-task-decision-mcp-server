@@ -12,14 +12,16 @@ public class Task {
 	private final LocalDate dueDate;
 	private String status;
 	private final int urgency;
+	private String userId;
 
-	public Task(String title, int urgency, LocalDate dueDate) {
+	public Task(String title, int urgency, LocalDate dueDate, String userId) {
 		this.id = UUID.randomUUID().toString();
 		this.title = title;
 		this.urgency = urgency;
 		this.createdAt = LocalDate.now();
 		this.status = "DUE";
 		this.dueDate = dueDate;
+		this.userId = userId;
 	}
 
 	public String getId() {
@@ -49,4 +51,12 @@ public class Task {
 	public LocalDate getDueDate() {
 		return this.dueDate;
 	}
+	
+	public String getUserId() {
+		return userId;
+	}
+
+//	public void setUserId(String userId) {
+//		this.userId = userId;
+//	}
 }
