@@ -2,10 +2,12 @@ package com.mcp.personal_task_decision_mcp_server.tools;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springaicommunity.mcp.annotation.McpTool;
+import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,8 +15,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import com.mcp.personal_task_decision_mcp_server.tasks.Task;
 import com.mcp.personal_task_decision_mcp_server.tasks.TaskService;
 
-import org.springframework.ai.mcp.server.annotation.McpTool;
-import org.springframework.ai.mcp.server.annotation.McpToolParam;
+//import org.springframework.ai.mcp.server.tool.McpTool;
+//import org.springframework.ai.mcp.server.tool.McpToolParam;
 
 @Component
 public class TaskTools {
@@ -55,15 +57,19 @@ public class TaskTools {
 	public List<Map<String, Object>> listTasks() {
 		String userId = currentUserId();
 
-		return taskService.getAllTasks(userId)
-				.stream()
-				.map(task -> Map.of(
-						"taskId", task.getId(),
-						"title", task.getTitle(),
-						"urgency", task.getUrgency(),
-						"dueDate", task.getDueDate().toString(),
-						"status", task.getStatus()))
-				.collect(Collectors.toList());
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Task task : taskService.getAllTasks(userId)) {
+			Map<String, Object> entry = Map.of(
+					"taskId", task.getId(),
+					"title", task.getTitle(),
+					"urgency", task.getUrgency(),
+					"dueDate", task.getDueDate().toString(),
+					"status", task.getStatus());
+			result.add(entry);
+		}
+
+		return result;
 	}
 
 	@McpTool(name = "complete_task", description = "Marks a task as completed.")
